@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "worklogapp",
+    "slug": "worklogapp",
+    "version": "1.0.0",
+    "scheme": "worklogapp",
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ]
+  }
+}
