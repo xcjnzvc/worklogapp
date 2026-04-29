@@ -11,7 +11,6 @@ interface AuthStore {
   logout: () => void;
 }
 
-// SecureStore를 Zustand가 사용할 수 있도록 어댑터 생성
 const secureStorage = {
   getItem: (key: string) => SecureStore.getItemAsync(key),
   setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
@@ -24,12 +23,7 @@ export const useAuthStore = create<AuthStore>()(
       token: null,
       login: async (data: LoginForm) => {
         const res = await loginAPI(data);
-
-        // 1. 상태 및 암호화 저장소에 토큰 저장
-        set({ token: res.token });
-        await SecureStore.setItemAsync("accessToken", res.token);
-
-        // 2. 유저 정보 저장
+        set({ token: res.token }); // persist가 자동으로 SecureStore에 저장해줌
         useUserStore.getState().setUser(res.user);
       },
       logout: async () => {

@@ -18,6 +18,5 @@ export const recordAttendanceAPI = async (
 
 export const getWeeklyAttendanceAPI = async () => {
   const res = await axiosInstance.get("/attendance/weekly");
-  console.log("weeklyapi", res);
   return res.data;
 };

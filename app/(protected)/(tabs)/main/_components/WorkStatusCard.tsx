@@ -165,20 +165,3 @@ export default function WorkStatusCard() {
     </View>
   );
 }
-
-// import React from "react";
-// import { View, Text } from "react-native";
-// import { useQueryClient, useQuery } from "@tanstack/react-query";
-// import { getTodayAttendanceAPI } from "@/api/attendance";
-// import { AttendanceData } from "@/types/attendance";
-
-// export default function WorkStatusCard() {
-//   const queryClient = useQueryClient();
-//   const { data, isLoading } = useQuery<AttendanceData>({
-//     queryKey: ["todayAttendance"],
-//     queryFn: getTodayAttendanceAPI,
-//   });
-
-//   if (isLoading) return <View />;
-//   return <Text>테스트 이건 원래 되던 페이지</Text>;
-// }

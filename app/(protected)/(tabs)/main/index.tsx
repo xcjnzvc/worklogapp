@@ -1,5 +1,3 @@
-//
-
 import React from "react";
 import { View, Text, ScrollView } from "react-native";
 import { useUserStore } from "@/store/useUserStore";
@@ -8,35 +6,19 @@ import Button from "@/components/Button";
 import WorkStatusCard from "./_components/WorkStatusCard";
 import AttendanceSummaryCard from "./_components/AttendanceSummaryCard";
 import LeaveStatusCard from "./_components/LeaveStatusCard";
+import UserProfileCard from "./_components/UserProfileCard";
 
 export default function MainScreen() {
-  const { user, isLoggedIn, isLoading } = useUserStore();
+  const { user } = useUserStore();
 
-  if (isLoading) {
-    return (
-      <View className="flex-1 justify-center items-center bg-[#F8F9FA]">
-        <Text>로딩 중...</Text>
-      </View>
-    );
-  }
-
-  if (!isLoggedIn || !user) {
-    return (
-      <View className="flex-1 justify-center items-center bg-[#F8F9FA]">
-        <Text className="text-lg font-bold text-gray-700 mb-4">
-          로그인이 필요한 서비스입니다.
-        </Text>
-        <Button text="로그인하러 가기" onPress={() => router.push("/login")} />
-      </View>
-    );
-  }
+  if (!user) return null; // (protected)/_layout.tsx에서 이미 처리됨
 
   return (
-    <ScrollView contentContainerClassName="p-5 bg-[#F8F9FA]">
-      <Text className="text-xl font-bold text-[#222] mb-5">
+    <ScrollView contentContainerClassName=" px-[20px] bg-white">
+      {/* <Text className="text-[24px] font-bold text-[#222] mb-5">
         <Text className="text-[#0029C0]">{user.companyName}</Text> {user.name}님
         환영합니다!
-      </Text>
+      </Text> */}
 
       {user.role === "OWNER" ? (
         <View className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
@@ -52,8 +34,8 @@ export default function MainScreen() {
           />
         </View>
       ) : (
-        // 세로로 한 줄 나열 (가로 배치 제거)
-        <View className="gap-4">
+        <View className="gap-4 mt-[10px]">
+          <UserProfileCard />
           <WorkStatusCard />
           <AttendanceSummaryCard />
           <LeaveStatusCard />
