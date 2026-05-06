@@ -4,6 +4,7 @@ import { Pressable, Text, View } from "react-native";
 interface ButtonProps {
   text: string;
   width?: number;
+  fontSize?: number;
   disabled?: boolean;
   onPress?: () => void;
 }
@@ -11,6 +12,7 @@ interface ButtonProps {
 export default function Button({
   text,
   width,
+  fontSize = 16,
   disabled,
   onPress,
 }: ButtonProps) {
@@ -24,7 +26,8 @@ export default function Button({
         ${disabled ? "bg-[#CCCCCC]" : "bg-[#0029C0]"}`}
     >
       <Text
-        className={`text-[18px] font-medium 
+        style={{ fontSize }} // 인라인 스타일로 동적 폰트 크기 적용
+        className={`font-medium 
           ${disabled ? "text-[#999999]" : "text-[#fff]"}`}
       >
         {text}

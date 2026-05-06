@@ -1,9 +1,11 @@
-import { View, Text } from "react-native";
+import ReadyComponent from "@/components/ReadyComponent";
 
 export default function Vacation() {
   return (
-    <View>
-      <Text>근태 페이지입니다.</Text>
-    </View>
+    <ReadyComponent
+      iconName="grid-outline"
+      title="근태 페이지 준비 중"
+      description="근태 관리와 설정 기능을 준비하고 있습니다."
+    />
   );
 }

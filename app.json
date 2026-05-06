@@ -6,7 +6,17 @@
     "scheme": "worklogapp",
     "plugins": [
       "expo-router",
-      "expo-secure-store"
-    ]
+      "expo-secure-store",
+      "@react-native-community/datetimepicker"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1b858837-c3be-4e54-97ff-b92b9d4f3477"
+      }
+    },
+    "android": {
+      "package": "com.jflsjtz.worklogapp"
+    }
   }
 }

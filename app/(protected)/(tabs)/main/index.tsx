@@ -14,14 +14,9 @@ export default function MainScreen() {
   if (!user) return null; // (protected)/_layout.tsx에서 이미 처리됨
 
   return (
-    <ScrollView contentContainerClassName=" px-[20px] bg-white">
-      {/* <Text className="text-[24px] font-bold text-[#222] mb-5">
-        <Text className="text-[#0029C0]">{user.companyName}</Text> {user.name}님
-        환영합니다!
-      </Text> */}
-
+    <ScrollView contentContainerClassName=" px-[20px]">
       {user.role === "OWNER" ? (
-        <View className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+        <View className=" p-5 rounded-3xl border border-gray-100 shadow-sm">
           <Text className="text-lg font-bold text-[#0023A1]">
             관리자 대시보드
           </Text>

@@ -4,16 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 import { getVacationAPI } from "@/api/vacation";
 import { VacationResponse } from "@/types/vacation";
 import LeaveHistoryItem from "@/components/LeaveHistoryItem";
-import { useRouter } from "expo-router";
-import Button from "@/components/Button";
+import { router } from "expo-router";
+import CardErrorFallback from "@/components/CardErrorFallback";
 
 function LoadingSkeleton() {
   return <View className="p-8 h-[500px] w-full bg-gray-50 rounded-3xl" />;
 }
 
 export default function LeaveStatusCard() {
-  const router = useRouter();
-  const { data, isLoading, isError } = useQuery<VacationResponse>({
+  const { data, isLoading, isError, refetch } = useQuery<VacationResponse>({
     queryKey: ["vacations"],
     queryFn: getVacationAPI,
   });
@@ -23,11 +22,15 @@ export default function LeaveStatusCard() {
     : 0;
 
   return (
-    <View className="p-6 bg-white rounded-[32px] border border-gray-100 shadow-sm w-full">
-      {isLoading ? (
-        <LoadingSkeleton />
-      ) : isError || !data ? null : (
-        <>
+    <>
+      {isLoading ? null : isError || !data ? (
+        <CardErrorFallback
+          message="연차 현황을 불러오지 못했어요"
+          onRetry={refetch}
+        />
+      ) : (
+        /* 성공적으로 데이터를 불러왔을 때 표시될 UI */
+        <View className="p-6 bg-white rounded-[32px] border border-gray-100 shadow-sm w-full">
           {/* 상단: 남은 연차 정보 */}
           <View className="flex-row justify-between items-start mb-8">
             <View>
@@ -74,11 +77,6 @@ export default function LeaveStatusCard() {
               <Text className="text-lg font-bold text-gray-900">
                 최근 신청 내역
               </Text>
-              {/* <Pressable>
-                <Text className="text-xs font-bold text-gray-400">
-                  더보기 &gt;
-                </Text>
-              </Pressable> */}
             </View>
 
             <View className="gap-2">
@@ -94,16 +92,15 @@ export default function LeaveStatusCard() {
             </View>
           </View>
 
-          {/* 버튼 */}
-          {/* <Button text="신청하기" onPress={() => {}} /> */}
+          {/* 더보기 버튼 */}
           <Pressable
             onPress={() => router.push("/leave-history")}
             className="flex-row items-center justify-center py-4 mt-2"
           >
             <Text className="text-gray-500 font-bold text-base">+ 더보기</Text>
           </Pressable>
-        </>
+        </View>
       )}
-    </View>
+    </>
   );
 }

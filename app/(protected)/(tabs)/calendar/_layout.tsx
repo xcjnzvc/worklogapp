@@ -1,12 +1,13 @@
 import { Stack } from "expo-router";
+import Header from "@/components/Header";
 
-export default function Layout() {
+export default function CalendarLayout() {
   return (
     <Stack
-      screenOptions={{
-        headerShown: false,
-        contentStyle: { backgroundColor: "#ffffff" },
-      }}
+      screenOptions={({ route }) => ({
+        header: () => <Header showBackButton={route.name !== "index"} />,
+        contentStyle: { backgroundColor: "#F8F9FA" },
+      })}
     />
   );
 }
