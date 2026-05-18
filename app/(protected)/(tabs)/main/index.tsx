@@ -29,7 +29,7 @@ export default function MainScreen() {
           />
         </View>
       ) : (
-        <View className="gap-4 mt-[10px]">
+        <View className="gap-4 mt-[10px] mb-[40px]">
           <UserProfileCard />
           <WorkStatusCard />
           <AttendanceSummaryCard />

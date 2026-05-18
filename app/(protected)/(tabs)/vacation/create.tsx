@@ -1,29 +1,60 @@
-import React, { useState, useRef } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Stack } from "expo-router";
+import React, { useState, useEffect } from "react";
+import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { Stack, useRouter } from "expo-router";
 import { ChevronDown, Calendar as CalendarIcon } from "lucide-react-native";
 import { Calendar } from "react-native-calendars";
+import FormLayout from "@/components/FormLayout";
+import ApproverModal from "@/components/ApproverModal";
+import { useVacation } from "@/hooks/useVacation";
+import { Approver } from "@/types/user";
+
+const LEAVE_TYPE_TO_ENUM = {
+  연차: "ANNUAL",
+  "오전 반차": "HALF",
+  "오후 반차": "HALF",
+  병가: "SICK",
+  경조사: "EVENT",
+  기타: "OTHER",
+} as const;
 
 export default function VacationCreateScreen() {
-  const scrollViewRef = useRef<ScrollView>(null);
+  const router = useRouter();
 
+  const { useCreateVacation, useApprovers } = useVacation();
+  const { data: approvers = [] } = useApprovers();
+  const { mutate: createVacation, isPending } = useCreateVacation();
+
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [leaveType, setLeaveType] = useState("연차");
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
-  const leaveTypes = ["연차", "반차", "병가", "경조사"];
+
+  const [selectedApprover, setSelectedApprover] = useState<Approver | null>(
+    null,
+  );
+  const [isApproverModalOpen, setIsApproverModalOpen] = useState(false);
+
+  const leaveTypes = [
+    "연차",
+    "오전 반차",
+    "오후 반차",
+    "병가",
+    "경조사",
+    "기타",
+  ];
 
   const [showCalendar, setShowCalendar] = useState(false);
   const [rangeStart, setRangeStart] = useState<string | null>(null);
   const [rangeEnd, setRangeEnd] = useState<string | null>(null);
   const [selectingMode, setSelectingMode] = useState<"start" | "end">("start");
+
+  useEffect(() => {
+    if (approvers.length > 0 && !selectedApprover) {
+      const defaultApprover =
+        approvers.find((a) => a.role === "OWNER") || approvers[0];
+      setSelectedApprover(defaultApprover);
+    }
+  }, [approvers, selectedApprover]);
 
   const displayDate = (dateString: string | null) => {
     if (!dateString) return "YYYY.MM.DD";
@@ -33,13 +64,16 @@ export default function VacationCreateScreen() {
   const handleDayPress = (day: any) => {
     if (selectingMode === "start") {
       setRangeStart(day.dateString);
-      if (rangeEnd && day.dateString > rangeEnd) setRangeEnd(null);
+      setRangeEnd(null);
       setSelectingMode("end");
     } else {
       if (rangeStart && day.dateString >= rangeStart) {
         setRangeEnd(day.dateString);
         setShowCalendar(false);
         setSelectingMode("start");
+      } else {
+        setRangeStart(day.dateString);
+        setSelectingMode("end");
       }
     }
   };
@@ -48,6 +82,7 @@ export default function VacationCreateScreen() {
     const marked: any = {};
     const today = new Date().toISOString().split("T")[0];
     marked[today] = { marked: true, dotColor: "#0029C0" };
+
     if (rangeStart)
       marked[rangeStart] = {
         ...marked[rangeStart],
@@ -56,12 +91,14 @@ export default function VacationCreateScreen() {
         textColor: "white",
       };
     if (!rangeStart || !rangeEnd) return marked;
+
     marked[rangeEnd] = {
       ...marked[rangeEnd],
       endingDay: true,
       color: "#0029C0",
       textColor: "white",
     };
+
     let current = new Date(rangeStart);
     let end = new Date(rangeEnd);
     current.setDate(current.getDate() + 1);
@@ -73,146 +110,177 @@ export default function VacationCreateScreen() {
     return marked;
   };
 
+  const handleSave = () => {
+    if (!title.trim()) return Alert.alert("확인", "제목을 입력해주세요.");
+    if (!rangeStart || !rangeEnd)
+      return Alert.alert("확인", "휴가 기간을 선택해주세요.");
+    if (!content.trim())
+      return Alert.alert("확인", "신청 사유를 입력해주세요.");
+    if (!selectedApprover)
+      return Alert.alert("확인", "결재권자를 선택해주세요.");
+
+    const isHalfLeave = leaveType.includes("반차");
+    const timeDetail = isHalfLeave
+      ? leaveType.includes("오전")
+        ? "AM"
+        : "PM"
+      : null;
+
+    const payload = {
+      title: title.trim(),
+      type:
+        LEAVE_TYPE_TO_ENUM[leaveType as keyof typeof LEAVE_TYPE_TO_ENUM] ||
+        "ANNUAL",
+      startDate: rangeStart,
+      endDate: rangeEnd,
+      reason: content.trim(),
+      timeDetail: timeDetail,
+      approverId: selectedApprover.id,
+    };
+
+    createVacation(payload as any, {
+      onSuccess: () => {
+        Alert.alert("성공", "휴가 신청이 완료되었습니다.", [
+          { text: "확인", onPress: () => router.back() },
+        ]);
+      },
+      onError: (error) => {
+        // 💡 400 에러가 날 때 어떤 필드 때문에 났는지 디버깅하기 좋게 얼럿 확장
+        Alert.alert(
+          "오류",
+          error.message || "휴가 신청 중 문제가 발생했습니다.",
+        );
+      },
+    });
+  };
+
   return (
-    <SafeAreaView
-      className="flex-1 bg-[#F8F9FA]"
-      edges={["left", "right", "bottom"]}
+    <FormLayout
+      title="휴가 신청"
+      onSave={handleSave}
+      isSubmitting={isPending}
+      saveButtonText="신청하기"
     >
       <Stack.Screen options={{ title: "휴가 신청" }} />
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 140 : 20}
-      >
-        <ScrollView
-          ref={scrollViewRef}
-          className="flex-1 px-6"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingTop: 10, paddingBottom: 180 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View className="items-center mt-2 mb-4">
-            <Text className="text-[22px] font-bold text-[#111]">휴가 신청</Text>
-          </View>
+      {/* 1. 제목 입력창 */}
+      <View className="bg-white rounded-[10px] px-4 mb-3 shadow-sm shadow-gray-200">
+        <TextInput
+          placeholder="제목을 입력해주세요"
+          placeholderTextColor="#BDBDBD"
+          value={title}
+          onChangeText={setTitle}
+          className="h-[50px] text-[14px] text-[#333]"
+        />
+      </View>
 
-          <View className="items-end mb-4">
-            <TouchableOpacity
-              activeOpacity={0.7}
-              className="bg-[#0025C3] px-6 py-2.5 rounded-xl shadow-md"
-            >
-              <Text className="text-white font-semibold text-[14px]">저장</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View className="bg-white rounded-[10px] px-4 mb-3 shadow-sm shadow-gray-200">
-            <TextInput
-              placeholder="제목을 입력해주세요"
-              placeholderTextColor="#BDBDBD"
-              className="h-[50px] text-[14px] text-[#333]"
-            />
-          </View>
-
-          <View className="flex-row gap-x-2.5 mb-3 z-50">
-            <View className="flex-1">
-              <TouchableOpacity
-                onPress={() => setShowTypeDropdown(!showTypeDropdown)}
-                activeOpacity={0.8}
-                className="bg-white rounded-2xl px-4 py-4 flex-row justify-between items-center shadow-sm shadow-gray-200"
-              >
-                <Text className="text-[#333] font-medium">{leaveType}</Text>
-                <ChevronDown size={16} color="#BDBDBD" />
-              </TouchableOpacity>
-              {showTypeDropdown && (
-                <View className="absolute top-[60px] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-[100]">
-                  {leaveTypes.map((type) => (
-                    <TouchableOpacity
-                      key={type}
-                      className="px-4 py-3 border-b border-gray-50"
-                      onPress={() => {
-                        setLeaveType(type);
-                        setShowTypeDropdown(false);
-                      }}
-                    >
-                      <Text className="text-[#333]">{type}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-            <TouchableOpacity className="flex-1 bg-white rounded-2xl px-4 py-4 flex-row justify-between items-center shadow-sm shadow-gray-200">
-              <Text className="text-[#BDBDBD]">승인자</Text>
-              <ChevronDown size={16} color="#BDBDBD" />
-            </TouchableOpacity>
-          </View>
-
-          {leaveType === "반차" && (
-            <View className="flex-row items-center gap-x-2.5 mb-3">
-              <TouchableOpacity className="flex-1 bg-white rounded-2xl px-4 py-4 flex-row justify-between items-center shadow-sm shadow-gray-200">
-                <Text className="text-[#333]">09:00</Text>
-                <ChevronDown size={16} color="#BDBDBD" />
-              </TouchableOpacity>
-              <Text className="text-gray-400 font-bold">-</Text>
-              <TouchableOpacity className="flex-1 bg-white rounded-2xl px-4 py-4 flex-row justify-between items-center shadow-sm shadow-gray-200">
-                <Text className="text-[#333]">14:00</Text>
-                <ChevronDown size={16} color="#BDBDBD" />
-              </TouchableOpacity>
+      {/* 2. 휴가 종류 및 승인자 선택 단락 */}
+      <View className="flex-row gap-x-2.5 mb-3 z-50">
+        <View className="flex-1 relative">
+          <TouchableOpacity
+            onPress={() => setShowTypeDropdown(!showTypeDropdown)}
+            activeOpacity={0.8}
+            className="bg-white h-14 rounded-2xl px-4 flex-row justify-between items-center shadow-sm shadow-gray-200"
+          >
+            <Text className="text-[#333] font-medium">{leaveType}</Text>
+            <ChevronDown size={16} color="#BDBDBD" />
+          </TouchableOpacity>
+          {showTypeDropdown && (
+            <View className="absolute top-[60px] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-[100]">
+              {leaveTypes.map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  className="px-4 py-3 border-b border-gray-50"
+                  onPress={() => {
+                    setLeaveType(type);
+                    setShowTypeDropdown(false);
+                  }}
+                >
+                  <Text className="text-[#333]">{type}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
           )}
+        </View>
 
-          <View className="bg-white rounded-2xl px-4 py-4 mb-3 shadow-sm shadow-gray-200">
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => setShowCalendar(!showCalendar)}
-              className="flex-row items-center"
-            >
-              <CalendarIcon size={18} color="#BDBDBD" />
-              <View className="flex-row flex-1 ml-3 items-center">
-                <Text
-                  className={`${rangeStart ? "text-[#333]" : "text-[#BDBDBD]"}`}
-                >
-                  {displayDate(rangeStart)}
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => setIsApproverModalOpen(true)}
+          className="flex-1 bg-white h-14 rounded-2xl px-4 flex-row justify-between items-center shadow-sm shadow-gray-200"
+        >
+          <View className="flex-row items-center gap-1.5">
+            <Text className="text-[#333] font-semibold text-[15px]">
+              {selectedApprover?.name || "로딩 중..."}
+            </Text>
+            {selectedApprover && (
+              <View className="px-2 py-0.5 bg-gray-100 rounded-full">
+                <Text className="text-[10px] font-bold text-gray-500">
+                  {selectedApprover.role === "OWNER" ? "대표" : "팀장"}
                 </Text>
-                <Text className="text-[#BDBDBD] mx-2">-</Text>
-                <Text
-                  className={`${rangeEnd ? "text-[#333]" : "text-[#BDBDBD]"}`}
-                >
-                  {displayDate(rangeEnd)}
-                </Text>
-              </View>
-            </TouchableOpacity>
-            {showCalendar && (
-              <View className="mt-4 border-t border-gray-100 pt-4">
-                <View style={{ height: 350 }}>
-                  <Calendar
-                    markingType="period"
-                    markedDates={getMarkedDates()}
-                    onDayPress={handleDayPress}
-                    theme={{ todayTextColor: "#0029C0", arrowColor: "#0029C0" }}
-                  />
-                </View>
               </View>
             )}
           </View>
+          <ChevronDown size={16} color="#BDBDBD" />
+        </TouchableOpacity>
+      </View>
 
-          {/* 내용 입력창 */}
-          <View className="bg-white rounded-3xl p-5 shadow-sm shadow-gray-200">
-            <TextInput
-              placeholder="내용을 입력해주세요"
-              placeholderTextColor="#BDBDBD"
-              multiline
-              textAlignVertical="top"
-              className="text-[14px] text-[#333] leading-5"
-              style={{ minHeight: 200 }}
-              onFocus={() => {
-                setTimeout(() => {
-                  scrollViewRef.current?.scrollToEnd({ animated: true });
-                }, 300);
-              }}
-            />
+      {/* 3. 날짜 및 달력 선택 단락 */}
+      <View className="bg-white rounded-2xl px-4 py-4 mb-3 shadow-sm shadow-gray-200">
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => setShowCalendar(!showCalendar)}
+          className="flex-row items-center"
+        >
+          <CalendarIcon size={18} color="#BDBDBD" />
+          <View className="flex-row flex-1 ml-3 items-center">
+            <Text
+              className={`${rangeStart ? "text-[#333]" : "text-[#BDBDBD]"}`}
+            >
+              {displayDate(rangeStart)}
+            </Text>
+            <Text className="text-[#BDBDBD] mx-2">-</Text>
+            <Text className={`${rangeEnd ? "text-[#333]" : "text-[#BDBDBD]"}`}>
+              {displayDate(rangeEnd)}
+            </Text>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </TouchableOpacity>
+        {showCalendar && (
+          <View className="mt-4 border-t border-gray-100 pt-4">
+            {/*  고정 height 영역을 제거하고 유연하게 공간을 채우도록 수정하여 스크롤 계산 버그 차단 */}
+            <View className="w-full">
+              <Calendar
+                markingType="period"
+                markedDates={getMarkedDates()}
+                onDayPress={handleDayPress}
+                theme={{ todayTextColor: "#0029C0", arrowColor: "#0029C0" }}
+              />
+            </View>
+          </View>
+        )}
+      </View>
+
+      {/* 4. 내용 입력창 (사유) */}
+      <View className="bg-white rounded-3xl p-5 shadow-sm shadow-gray-200 mb-4">
+        <TextInput
+          placeholder="내용을 입력해주세요 (신청 사유)"
+          placeholderTextColor="#BDBDBD"
+          multiline
+          value={content}
+          onChangeText={setContent}
+          textAlignVertical="top"
+          className="text-[14px] text-[#333] leading-5"
+          // 💡 키보드가 켜졌을 때 유연하게 반응할 수 있도록 minHeight와 maxHeight 지정
+          style={{ minHeight: 180, maxHeight: 250 }}
+        />
+      </View>
+
+      <ApproverModal
+        isOpen={isApproverModalOpen}
+        onClose={() => setIsApproverModalOpen(false)}
+        approvers={approvers}
+        onSelect={(approver) => setSelectedApprover(approver)}
+        selectedId={selectedApprover?.id}
+      />
+    </FormLayout>
   );
 }

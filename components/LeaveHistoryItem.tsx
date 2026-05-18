@@ -39,8 +39,8 @@ export default function LeaveHistoryItem({
 
   const { color: dotColor } = statusConfig[status];
 
-  const dateObj = new Date(startDate);
-  const formattedDate = `${dateObj.getFullYear()}년 ${String(dateObj.getMonth() + 1).padStart(2, "0")}월 ${String(dateObj.getDate()).padStart(2, "0")}일`;
+  const [year, month, day] = startDate.split(".");
+  const formattedDate = `${year}년 ${month}월 ${day}일`;
 
   return (
     <View className="flex-row items-center justify-between py-4 border-b border-gray-50">

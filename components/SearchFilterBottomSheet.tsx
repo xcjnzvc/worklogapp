@@ -18,53 +18,10 @@ const TODAY = new Date().toISOString().split("T")[0];
 const DAY_WIDTH = 38;
 const DAY_HEIGHT = 34;
 
-LocaleConfig.locales["ko"] = {
-  monthNames: [
-    "1월",
-    "2월",
-    "3월",
-    "4월",
-    "5월",
-    "6월",
-    "7월",
-    "8월",
-    "9월",
-    "10월",
-    "11월",
-    "12월",
-  ],
-  monthNamesShort: [
-    "1월",
-    "2월",
-    "3월",
-    "4월",
-    "5월",
-    "6월",
-    "7월",
-    "8월",
-    "9월",
-    "10월",
-    "11월",
-    "12월",
-  ],
-  dayNames: [
-    "일요일",
-    "월요일",
-    "화요일",
-    "수요일",
-    "목요일",
-    "금요일",
-    "토요일",
-  ],
-  dayNamesShort: ["일", "월", "화", "수", "목", "금", "토"],
-  today: "오늘",
-};
-LocaleConfig.defaultLocale = "ko";
-
 export type FilterData = {
   sortOrder: string;
   status: string;
-  leaveType: string;
+  categoryValue: string; // 휴가 종류 혹은 근태 종류가 담길 곳
   startDate: string;
   endDate: string;
 };
@@ -73,16 +30,25 @@ type SearchFilterProps = {
   isVisible: boolean;
   onClose: () => void;
   onApply: (data: FilterData) => void;
+  categoryTitle: string; // 예: "휴가 종류" 또는 "근태 종류"
+  categoryOptions: string[]; // 예: ["전체보기", "연차", "반차"] 또는 ["전체보기", "지각", "병결"]
 };
 
 export default function SearchFilterBottomSheet({
   isVisible,
   onClose,
   onApply,
+  categoryTitle,
+  categoryOptions,
 }: SearchFilterProps) {
   const [sortOrder, setSortOrder] = useState("최신순");
   const [status, setStatus] = useState("전체");
-  const [leaveType, setLeaveType] = useState("전체보기");
+
+  //  3. 초기값을 카테고리 옵션의 첫 번째 원소(보통 '전체보기' 혹은 '전체')로 유연하게 설정
+  const [categoryValue, setCategoryValue] = useState(
+    categoryOptions[0] || "전체보기",
+  );
+
   const [startDate, setStartDate] = useState("2026-05-01");
   const [endDate, setEndDate] = useState("2026-05-31");
   const [selecting, setSelecting] = useState<"start" | "end">("start");
@@ -121,19 +87,6 @@ export default function SearchFilterBottomSheet({
     return marked;
   }, [startDate, endDate]);
 
-  const calendarTheme = useMemo(
-    () => ({
-      arrowColor: "#0025C3",
-      monthTextColor: "#111",
-      textMonthFontWeight: "900" as const,
-      textDayFontWeight: "600" as const,
-      textDayHeaderFontWeight: "600" as const,
-      dayTextColor: "#444",
-      textSectionTitleColor: "#999",
-    }),
-    [],
-  );
-
   const handleDayPress = (dateStr: string) => {
     if (selecting === "start") {
       setStartDate(dateStr);
@@ -151,67 +104,10 @@ export default function SearchFilterBottomSheet({
   const handleReset = () => {
     setSortOrder("최신순");
     setStatus("전체");
-    setLeaveType("전체보기");
+    setCategoryValue(categoryOptions[0] || "전체보기");
     setStartDate("2026-05-01");
     setEndDate("2026-05-31");
     setSelecting("start");
-  };
-
-  const renderDay = ({ date }: { date?: DateData }) => {
-    // date가 없으면 빈 셀 반환
-    if (!date) return <View style={dayStyles.wrapper} />;
-
-    const dateStr = date.dateString;
-    const isToday = dateStr === TODAY;
-    const marking = markedDates[dateStr];
-
-    const isStart = !!marking?.startingDay && !marking?.endingDay;
-    const isEnd = !!marking?.endingDay && !marking?.startingDay;
-    const isSingle = !!marking?.startingDay && !!marking?.endingDay;
-    const isMiddle = !!marking && !marking?.startingDay && !marking?.endingDay;
-    const isSelected = isStart || isEnd || isSingle;
-
-    return (
-      <TouchableOpacity
-        onPress={() => handleDayPress(dateStr)}
-        activeOpacity={0.7}
-        style={dayStyles.wrapper}
-      >
-        {isMiddle && (
-          <View style={[dayStyles.rangeFull, { backgroundColor: "#EEF2FF" }]} />
-        )}
-        {isStart && (
-          <View
-            style={[dayStyles.rangeHalfRight, { backgroundColor: "#EEF2FF" }]}
-          />
-        )}
-        {isEnd && (
-          <View
-            style={[dayStyles.rangeHalfLeft, { backgroundColor: "#EEF2FF" }]}
-          />
-        )}
-
-        <View
-          style={[
-            dayStyles.dayCircle,
-            isSelected && { backgroundColor: "#0025C3" },
-          ]}
-        >
-          <Text
-            style={[
-              dayStyles.dayText,
-              isSelected && { color: "#fff", fontWeight: "700" },
-              isMiddle && { color: "#0025C3" },
-              isToday && !isSelected && { color: "#0025C3", fontWeight: "800" },
-            ]}
-          >
-            {date.day}
-          </Text>
-        </View>
-
-        {isToday && !isSelected && <View style={dayStyles.todayDot} />}
-      </TouchableOpacity>
-    );
   };
 
   return (
@@ -261,13 +157,13 @@ export default function SearchFilterBottomSheet({
               ))}
             </FilterSection>
 
-            <FilterSection title="휴가 종류">
-              {["전체보기", "연차", "반차", "경조사"].map((item) => (
+            <FilterSection title={categoryTitle}>
+              {categoryOptions.map((item) => (
                 <FilterChip
                   key={item}
                   label={item}
-                  isActive={leaveType === item}
-                  onPress={() => setLeaveType(item)}
+                  isActive={categoryValue === item}
+                  onPress={() => setCategoryValue(item)}
                 />
               ))}
             </FilterSection>
@@ -321,6 +217,7 @@ export default function SearchFilterBottomSheet({
                 </Text>
               </TouchableOpacity>
             </View>
+
             <View className="mt-4 border-t border-gray-100 pt-4">
               <View style={{ height: 350 }}>
                 <Calendar
@@ -355,7 +252,7 @@ export default function SearchFilterBottomSheet({
           <Button
             text="필터 적용하기"
             onPress={() =>
-              onApply({ sortOrder, status, leaveType, startDate, endDate })
+              onApply({ sortOrder, status, categoryValue, startDate, endDate })
             }
           />
         </View>
