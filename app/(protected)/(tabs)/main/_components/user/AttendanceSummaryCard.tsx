@@ -29,10 +29,6 @@ const STAT_LABEL_MAP: Record<string, string> = {
 };
 
 export default function AttendanceSummaryCard() {
-  // const { data, isLoading, isError, refetch } = useQuery<any>({
-  //   queryKey: ["summaryAttendance"],
-  //   queryFn: getWeeklyAttendanceAPI,
-  // });
   const { data, isLoading, isError, error, refetch } = useQuery<any>({
     queryKey: ["summaryAttendance"],
     queryFn: getWeeklyAttendanceAPI,

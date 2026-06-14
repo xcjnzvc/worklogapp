@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { Stack, useRouter } from "expo-router";
-import { ChevronDown, Calendar as CalendarIcon } from "lucide-react-native";
+import { Calendar as CalendarIcon, ChevronDown } from "lucide-react-native";
 import { Calendar } from "react-native-calendars";
 import FormLayout from "@/components/FormLayout";
 import ApproverModal from "@/components/ApproverModal";
+import Dropdown from "@/components/Dropdown";
 import { useVacation } from "@/hooks/useVacation";
 import { Approver } from "@/types/user";
+
+// 이 화면에서만 쓰는 옵션 목록은 화면 파일에서 직접 정의
+const LEAVE_TYPES = [
+  "연차",
+  "오전 반차",
+  "오후 반차",
+  "병가",
+  "경조사",
+  "기타",
+];
 
 const LEAVE_TYPE_TO_ENUM = {
   연차: "ANNUAL",
@@ -27,21 +38,11 @@ export default function VacationCreateScreen() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [leaveType, setLeaveType] = useState("연차");
-  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
 
   const [selectedApprover, setSelectedApprover] = useState<Approver | null>(
     null,
   );
   const [isApproverModalOpen, setIsApproverModalOpen] = useState(false);
-
-  const leaveTypes = [
-    "연차",
-    "오전 반차",
-    "오후 반차",
-    "병가",
-    "경조사",
-    "기타",
-  ];
 
   const [showCalendar, setShowCalendar] = useState(false);
   const [rangeStart, setRangeStart] = useState<string | null>(null);
@@ -144,8 +145,7 @@ export default function VacationCreateScreen() {
           { text: "확인", onPress: () => router.back() },
         ]);
       },
-      onError: (error) => {
-        // 💡 400 에러가 날 때 어떤 필드 때문에 났는지 디버깅하기 좋게 얼럿 확장
+      onError: (error: any) => {
         Alert.alert(
           "오류",
           error.message || "휴가 신청 중 문제가 발생했습니다.",
@@ -175,33 +175,12 @@ export default function VacationCreateScreen() {
       </View>
 
       {/* 2. 휴가 종류 및 승인자 선택 단락 */}
-      <View className="flex-row gap-x-2.5 mb-3 z-50">
-        <View className="flex-1 relative">
-          <TouchableOpacity
-            onPress={() => setShowTypeDropdown(!showTypeDropdown)}
-            activeOpacity={0.8}
-            className="bg-white h-14 rounded-2xl px-4 flex-row justify-between items-center shadow-sm shadow-gray-200"
-          >
-            <Text className="text-[#333] font-medium">{leaveType}</Text>
-            <ChevronDown size={16} color="#BDBDBD" />
-          </TouchableOpacity>
-          {showTypeDropdown && (
-            <View className="absolute top-[60px] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-[100]">
-              {leaveTypes.map((type) => (
-                <TouchableOpacity
-                  key={type}
-                  className="px-4 py-3 border-b border-gray-50"
-                  onPress={() => {
-                    setLeaveType(type);
-                    setShowTypeDropdown(false);
-                  }}
-                >
-                  <Text className="text-[#333]">{type}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-        </View>
+      <View className="flex-row gap-x-2.5 mb-3">
+        <Dropdown
+          value={leaveType}
+          options={LEAVE_TYPES}
+          onSelect={setLeaveType}
+        />
 
         <TouchableOpacity
           activeOpacity={0.8}
@@ -246,7 +225,6 @@ export default function VacationCreateScreen() {
         </TouchableOpacity>
         {showCalendar && (
           <View className="mt-4 border-t border-gray-100 pt-4">
-            {/*  고정 height 영역을 제거하고 유연하게 공간을 채우도록 수정하여 스크롤 계산 버그 차단 */}
             <View className="w-full">
               <Calendar
                 markingType="period"
@@ -269,7 +247,6 @@ export default function VacationCreateScreen() {
           onChangeText={setContent}
           textAlignVertical="top"
           className="text-[14px] text-[#333] leading-5"
-          // 💡 키보드가 켜졌을 때 유연하게 반응할 수 있도록 minHeight와 maxHeight 지정
           style={{ minHeight: 180, maxHeight: 250 }}
         />
       </View>

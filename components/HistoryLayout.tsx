@@ -24,7 +24,6 @@ interface HistoryLayoutProps {
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
   children: React.ReactNode;
 
-  // 💡공통 더보기 기능을 위한 Props 추가
   onLoadMore: () => void; // 버튼 클릭 시 실행할 액션 (fetchNextPage 또는 setPage)
   hasNextPage?: boolean; // 다음 페이지 존재 여부
   isFetchingNextPage?: boolean; // 로딩 상태 여부
@@ -63,9 +62,9 @@ export default function HistoryLayout({
         </View>
 
         {/* 2. 우측/상단 추가 액션 영역 */}
-        {rightActionComponent && (
-          <View className="items-end mb-4 pr-1">{rightActionComponent}</View>
-        )}
+        <View className="items-end mb-4 pr-1" style={{ height: 56 }}>
+          {rightActionComponent ?? null}
+        </View>
 
         {/* 3. 공통 통합 검색 바 */}
         <View className="flex-row items-center bg-white rounded-xl px-4 py-1 mb-6 shadow-sm border border-gray-100">
@@ -85,10 +84,8 @@ export default function HistoryLayout({
             </TouchableOpacity>
           </View>
         </View>
-
         {/* 4. 리스트 내역 조각들 */}
         <View className="pb-4">{children}</View>
-
         {/* 5. 💡 공통 더보기 / 상태 제어 영역 통합 */}
         <View className="mb-10">
           {isFetchingNextPage ? (

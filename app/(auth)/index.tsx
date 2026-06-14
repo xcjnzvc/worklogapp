@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Pressable,
-  Alert,
   KeyboardAvoidingView,
   ScrollView,
   Platform,
@@ -19,7 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuthStore } from "@/store/useAuthStore";
 import { loginSchema, LoginForm } from "@/types/auth";
 import Title from "./_components/Title";
-import Input from "./_components/Input";
+import Input from "@/components/Input";
 import Toast from "react-native-toast-message";
 
 type ServerStatus = "checking" | "ok" | "fail";

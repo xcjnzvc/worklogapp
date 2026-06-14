@@ -10,7 +10,7 @@ export default function LeaveStatusCard() {
   const { data, isLoading, isError, refetch } = useVacationList();
 
   const summary = data?.summary;
-  const leaveList = data?.pages[0]?.list || [];
+  const leaveList = data?.list || [];
 
   const usedPercentage = summary ? (summary.used / summary.total) * 100 : 0;
 
@@ -84,9 +84,9 @@ export default function LeaveStatusCard() {
         </View>
 
         <View className="gap-2">
-          {leaveList.map((item: any) => (
+          {leaveList.map((item: any, index: number) => (
             <LeaveHistoryItem
-              key={item.id}
+              key={`${item.id}-${index}`}
               startDate={item.startDate}
               type={item.type}
               timeRange={item.timeRange}

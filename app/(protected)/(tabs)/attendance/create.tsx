@@ -19,6 +19,7 @@ export default function AttendanceCorrectionCreateScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const targetId = (params.id as string) || "NO_DATA_ID";
+  const targetDate = (params.date as string) || new Date().toISOString();
 
   const { useApprovers } = useVacation();
   const { data: approvers = [] } = useApprovers();
@@ -57,16 +58,24 @@ export default function AttendanceCorrectionCreateScreen() {
     if (fixType === "OTHER" && !reason)
       return alert("기타 사유를 구체적으로 입력해주세요.");
     if (!selectedApprover) return alert("결재권자를 선택해주세요.");
+    if (
+      !/^\d{2}:\d{2}$/.test(fixClockIn) ||
+      !/^\d{2}:\d{2}$/.test(fixClockOut)
+    ) {
+      return alert("시간 형식은 HH:MM (예: 09:00) 형태로 입력해주세요.");
+    }
 
     const today = new Date().toISOString().split("T")[0];
     const fallbackReason =
       FIX_TYPES.find((t) => t.value === fixType)?.label || "근태 정정 신청";
 
+    const recordDateStr = targetDate.split("T")[0]; // 원래 기록의 날짜(YYYY-MM-DD) 추출
+
     const requestData = {
       type: fixType,
       reason: reason || fallbackReason,
-      fixClockIn: new Date(`${today}T${fixClockIn}:00`).toISOString(),
-      fixClockOut: new Date(`${today}T${fixClockOut}:00`).toISOString(),
+      fixClockIn: new Date(`${recordDateStr}T${fixClockIn}:00`).toISOString(), // 💡 원래 날짜 유지
+      fixClockOut: new Date(`${recordDateStr}T${fixClockOut}:00`).toISOString(), // 💡 원래 날짜 유지
       approverId: selectedApprover.id,
     };
 

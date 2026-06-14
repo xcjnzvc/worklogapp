@@ -4,7 +4,28 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="95f1df22-4cc3-4c69-9afc-f87d76734bdf" name="Changes" comment="" />
+    <list default="true" id="95f1df22-4cc3-4c69-9afc-f87d76734bdf" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.env.development" beforeDir="false" afterPath="$PROJECT_DIR$/.env.development" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/attendance.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/attendance.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/vacation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/vacation.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(protected)/(tabs)/attendance/create.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(protected)/(tabs)/attendance/create.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(protected)/(tabs)/attendance/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(protected)/(tabs)/attendance/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(protected)/(tabs)/main/_components/AttendanceSummaryCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(protected)/(tabs)/main/_components/LeaveStatusCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(protected)/(tabs)/main/_components/UserProfileCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(protected)/(tabs)/main/_components/WorkStatusCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(protected)/(tabs)/main/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(protected)/(tabs)/main/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(protected)/(tabs)/vacation/create.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(protected)/(tabs)/vacation/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(protected)/(tabs)/vacation/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/HistoryLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/HistoryLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hooks/useAttendance.ts" beforeDir="false" afterPath="$PROJECT_DIR$/hooks/useAttendance.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hooks/useVacation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/hooks/useVacation.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/types/vacation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/types/vacation.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
