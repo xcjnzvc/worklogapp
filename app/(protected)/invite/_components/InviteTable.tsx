@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import { InviteMobileCard } from "./InviteMobileCard";
+import InviteMobileCard from "./InviteMobileCard";
 
 const InviteTable = ({ data, onResend }: any) => {
   const getStatusStyle = (status: string) => {

@@ -53,3 +53,12 @@ export type LoginForm = z.infer<typeof loginSchema>;
 export type SignupForm = z.infer<typeof signupSchema>;
 export type InvitedSignupForm = z.infer<typeof invitedSignupSchema>;
 export type InviteForm = z.infer<typeof inviteSchema>;
+
+export type UnifiedSignupForm = {
+  email: string;
+  password: string;
+  passwordConfirm: string;
+  name: string;
+  phone: string;
+  companyName?: string; // 초대받은 사람은 없을 수 있으므로 옵셔널 처리
+};

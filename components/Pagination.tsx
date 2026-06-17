@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }: any) => {
-  if (totalPages <= 1) return null;
+  if (totalPages <= 1) return <View className="mb-10" />;
 
   return (
     <View className="flex-row items-center justify-center gap-2 mt-6 mb-10">

@@ -1,6 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  RefreshControl,
+} from "react-native";
 import { useUserStore } from "@/store/useUserStore";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { router } from "expo-router";
 import {
   UserPlus,
@@ -101,14 +108,40 @@ const getTeamIcon = (type: string) => {
 
 export default function MainScreen() {
   const { user } = useUserStore();
+  const [refreshing, setRefreshing] = useState(false);
+  const tabBarHeight = useBottomTabBarHeight();
 
   if (!user) return null;
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+
+    // 여기서 실제 데이터를 다시 불러오는 로직을 실행하세요
+    // 예: await fetchAttendanceData();
+
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1500); // 데이터 로딩 완료 후 false로 변경
+  };
 
   return (
     <ScrollView
       className="flex-1 bg-[#F8F9FA]"
-      contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
+      contentContainerStyle={{
+        paddingHorizontal: 20,
+        paddingBottom: tabBarHeight + 24,
+      }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor="#3B28FF"
+        />
+      }
     >
+      <Text style={{ color: "red", fontSize: 18 }}>
+        tabBarHeight: {tabBarHeight}
+      </Text>
       <View className="mt-4 mb-4">
         <UserProfileCard />
       </View>

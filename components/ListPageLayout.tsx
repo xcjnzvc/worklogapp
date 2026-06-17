@@ -43,7 +43,7 @@ const ListPageLayout = ({
       {tabs && <View className="mb-6">{tabs}</View>}
 
       <View
-        className={noBackground ? "" : "bg-white p-4 rounded-[32px] shadow-sm"}
+        className={noBackground ? "" : "bg-white p-4 rounded-[32px] shadow-sm "}
       >
         {children}
       </View>

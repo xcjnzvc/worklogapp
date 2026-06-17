@@ -2,8 +2,14 @@ import { axiosInstance } from "@/lib/axios";
 import { AttendanceData, CreateFixRequestPayload } from "@/types/attendance";
 
 export const getTodayAttendanceAPI = async (): Promise<AttendanceData> => {
-  const res = await axiosInstance.get("/attendance/live");
-  return res.data;
+  try {
+    console.log("🚀 GET 요청 시도: /attendance/live");
+    const res = await axiosInstance.get("/attendance/live");
+    return res.data;
+  } catch (error: any) {
+    console.error("🚨 getTodayAttendanceAPI 에러:", error.message);
+    throw error;
+  }
 };
 
 export const recordAttendanceAPI = async (
@@ -12,8 +18,23 @@ export const recordAttendanceAPI = async (
   const endpoint =
     action === "CLOCK_IN" ? "/attendance/clock-in" : "/attendance/clock-out";
 
-  const res = await axiosInstance.post(endpoint);
-  return res.data;
+  try {
+    const res = await axiosInstance.post(endpoint);
+    console.log("✅ 응답 데이터:", res.data);
+    return res.data;
+  } catch (error: any) {
+    // 💡 여기서 에러 내용을 상세히 출력해 보세요
+    if (error.response) {
+      console.error(
+        "❌ 서버 에러 응답:",
+        error.response.status,
+        error.response.data,
+      );
+    } else {
+      console.error("❌ 네트워크/요청 에러:", error.message);
+    }
+    throw error; // 다시 던져야 useMutation의 onError가 동작합니다.
+  }
 };
 
 export const getWeeklyAttendanceAPI = async () => {
@@ -63,14 +84,29 @@ export const getWorkLogDashboardAPI = async () => {
 
 // 💡 1. 팀원들이 보낸 전체 정정 요청 목록 조회
 export const getFixWorkLogListMgmtAPI = async (page: number = 1) => {
-  const res = await axiosInstance.get("/attendance/work-log/mgmt/list", {
-    params: {
-      page: page,
-      limit: 10,
-    },
-  });
-  console.log("getFixWorkLogListMgmtAPI (관리자 전체 조회)", res.data);
-  return res.data;
+  try {
+    console.log(
+      `🚀 GET 요청 시도: /attendance/work-log/mgmt/list?page=${page}`,
+    );
+    const res = await axiosInstance.get("/attendance/work-log/mgmt/list", {
+      params: { page: page, limit: 10 },
+    });
+    return res.data;
+  } catch (error: any) {
+    // 💡 에러 상세 출력 (응답이 있는지 없는지 구분)
+    if (error.response) {
+      console.error(
+        "❌ [서버 응답 오류]",
+        error.response.status,
+        error.response.data,
+      );
+    } else if (error.request) {
+      console.error("❌ [네트워크 오류 - 응답 없음]", error.request);
+    } else {
+      console.error("❌ [요청 설정 오류]", error.message);
+    }
+    throw error;
+  }
 };
 
 // 2. 정정 최종 승인 (PATCH /attendance/work-log/mgmt/:id/approve)
@@ -81,14 +117,10 @@ export const approveAttendanceAPI = async (id: string) => {
   return res.data;
 };
 
-// 3. 정정 신청 반려 (PATCH /attendance/work-log/mgmt/:id/reject)
-export const rejectAttendanceAPI = async (
+// 3. 정정 신청 반려 (PATCH /attendance/work-log/mgmt/:id/r
+export const rejectAttendanceAPI = (
   id: string,
   data: { rejectReason: string },
 ) => {
-  const res = await axiosInstance.patch(
-    `/attendance/work-log/mgmt/${id}/reject`,
-    data,
-  );
-  return res.data;
+  return axiosInstance.patch(`/attendance/fix/${id}/reject`, data);
 };

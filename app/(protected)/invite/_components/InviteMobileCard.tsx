@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 
-export const InviteMobileCard = ({ data, getStatusStyle, onResend }: any) => (
+const InviteMobileCard = ({ data, getStatusStyle, onResend }: any) => (
   <View className="gap-4">
     {data.map((item: any) => (
       <View
@@ -9,8 +9,8 @@ export const InviteMobileCard = ({ data, getStatusStyle, onResend }: any) => (
         className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm"
       >
         <View className="flex-row justify-between mb-3">
-          <Text className="text-xs font-bold text-gray-400">
-            {item.displayId}
+          <Text className="text-[12px] font-bold text-[#A3AED0] tracking-wider uppercase">
+            NO. {item.displayId}
           </Text>
           <View
             className={`px-3 py-1 rounded-full ${getStatusStyle(item.status)}`}
@@ -35,3 +35,5 @@ export const InviteMobileCard = ({ data, getStatusStyle, onResend }: any) => (
     ))}
   </View>
 );
+
+export default InviteMobileCard;

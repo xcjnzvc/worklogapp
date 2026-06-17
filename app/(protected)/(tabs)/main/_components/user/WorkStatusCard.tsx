@@ -19,6 +19,7 @@ const STATUS_STYLE: Record<
   INSUFFICIENT: { label: "시간 미달", color: "#A855F7", dot: "#A855F7" },
   MISSING_OUT: { label: "퇴근 누락", color: "#4B5563", dot: "#4B5563" },
   ABSENT: { label: "결근", color: "#B91C1C", dot: "#B91C1C" },
+  LEAVE: { label: "휴가 중", color: "#6B7280", dot: "#9CA3AF" },
 };
 
 export default function WorkStatusCard() {
@@ -28,6 +29,10 @@ export default function WorkStatusCard() {
     queryKey: ["todayAttendance"],
     queryFn: getTodayAttendanceAPI,
   });
+
+  const isOnLeave = useMemo(() => {
+    return attendance?.status === "LEAVE";
+  }, [attendance]);
 
   // 💡 수정된 formatTime: 하이픈(-) 구분자 포맷 완벽 대처
   const formatTime = (isoString: string | null | undefined) => {
@@ -205,13 +210,16 @@ export default function WorkStatusCard() {
 
       <Button
         text={
-          !attendance?.clockIn
-            ? "출근하기"
-            : attendance.isClockedIn
-              ? "퇴근하기"
-              : "업무 종료"
+          isOnLeave
+            ? "휴가 중입니다"
+            : !attendance?.clockIn
+              ? "출근하기"
+              : attendance.isClockedIn
+                ? "퇴근하기"
+                : "업무 종료"
         }
         disabled={
+          isOnLeave || // 💡 연차라면 버튼 비활성화
           (!attendance?.isClockedIn && !!attendance?.clockIn) ||
           mutation.isPending
         }

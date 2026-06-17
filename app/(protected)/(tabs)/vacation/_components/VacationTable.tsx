@@ -71,12 +71,14 @@ const VacationTable = ({
   };
 
   return (
-    <View className=" pb-4">
+    <View className="pb-4">
       {data.map((item, index) => {
+        console.log(`[Item ${index}]`, item);
         const statusStyle = getStatusStyle(item.status);
         const typeStyle = getTypeStyle(item.type);
         const StatusIcon = statusStyle.icon;
         const TypeIcon = typeStyle.icon;
+
         const showActions =
           !!onApprove && !!onReject && item.status === "PENDING";
 
@@ -86,10 +88,23 @@ const VacationTable = ({
             onPress={() => onItemClick(item)}
             className="bg-white rounded-[32px] p-6 mb-4 border border-gray-50 shadow-sm"
           >
-            <Text className="text-gray-400 font-bold text-[13px] mb-4">
-              {item.displayId || String(index + 1).padStart(3, "0")}
-            </Text>
+            {/* NO. 번호 및 승인 대기 태그 영역 */}
+            <View className="flex-row justify-between items-center mb-[20px]">
+              <Text className="text-[12px] font-bold text-[#A3AED0] tracking-wider uppercase">
+                NO. {String(index + 1).padStart(3, "0")}
+              </Text>
 
+              {/* 승인 대기 태그: Owner/User 구분 없이 승인 대기일 때만 상단에 표시 */}
+              {item.status === "PENDING" && (
+                <View className="bg-[#FFF8E7] px-3 py-1 rounded-full">
+                  <Text className="text-[11px] font-black text-[#FFA800]">
+                    승인 대기
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            {/* 본문 영역 */}
             <View className="flex-row items-center justify-between mb-6">
               <View className="flex-row items-center gap-4">
                 <View
@@ -102,8 +117,8 @@ const VacationTable = ({
                   <Text className="text-gray-400 font-bold text-[14px] mb-1">
                     {typeStyle.label}
                   </Text>
-                  <Text className="text-gray-900 font-black text-[17px]">
-                    {item.formattedPeriod}
+                  <Text className="text-gray-900 font-bold text-[14px]">
+                    {item.startDate} ~ {item.endDate}
                   </Text>
                 </View>
               </View>
@@ -118,17 +133,9 @@ const VacationTable = ({
               </View>
             </View>
 
-            <View
-              className={`flex-row items-center justify-center py-3 rounded-2xl gap-2 ${statusStyle.bg}`}
-            >
-              <StatusIcon size={18} color={statusStyle.color} />
-              <Text className={`font-bold text-[15px] ${statusStyle.text}`}>
-                {statusStyle.label}
-              </Text>
-            </View>
-
-            {showActions && (
-              <View className="flex-row gap-2 mt-4">
+            {/* Owner 전용 액션 버튼: 승인 대기 중일 때 표시 */}
+            {showActions ? (
+              <View className="flex-row gap-2 mt-2">
                 <TouchableOpacity
                   onPress={() => onReject(item.id)}
                   className="flex-1 py-3.5 bg-[#FFF1F2] rounded-2xl items-center justify-center"
@@ -141,6 +148,16 @@ const VacationTable = ({
                 >
                   <Text className="font-bold text-white text-sm">승인</Text>
                 </TouchableOpacity>
+              </View>
+            ) : (
+              /* Owner가 아니거나 승인 대기 상태가 아닐 때만 상태바 표시 */
+              <View
+                className={`flex-row items-center justify-center py-3 rounded-2xl gap-2 ${statusStyle.bg}`}
+              >
+                <StatusIcon size={18} color={statusStyle.color} />
+                <Text className={`font-medium text-[14px] ${statusStyle.text}`}>
+                  {statusStyle.label}
+                </Text>
               </View>
             )}
           </TouchableOpacity>

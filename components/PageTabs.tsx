@@ -1,8 +1,9 @@
 import React from "react";
 import { View, Text, TouchableOpacity, TextInput } from "react-native";
 import { Search } from "lucide-react-native";
+// 1. 라이브러리 추가 임포트
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-// 1. 제네릭 T를 사용하여 탭 타입을 유연하게 받습니다.
 interface TabOption<T extends string> {
   value: T;
   label: string;
@@ -13,11 +14,10 @@ interface PageTabsProps<T extends string> {
   activeTab: T;
   onTabChange: (tab: T) => void;
   searchKeyword?: string;
-  onSearchChange?: (value: string) => void; // 함수 타입을 명시합니다.
+  onSearchChange?: (value: string) => void;
   searchPlaceholder?: string;
 }
 
-// 2. 컴포넌트에 타입을 지정합니다.
 const PageTabs = <T extends string>({
   tabs,
   activeTab,
@@ -26,9 +26,16 @@ const PageTabs = <T extends string>({
   onSearchChange,
   searchPlaceholder = "검색어를 입력하세요...",
 }: PageTabsProps<T>) => {
+  // 2. 훅을 사용하여 기기 하단의 안전 영역(Safe Area) 높이를 가져옵니다.
+  const insets = useSafeAreaInsets();
+
   return (
-    <View className="pt-4 border-t border-gray-100">
-      <View className="flex-row items-center gap-6 mb-4">
+    // 3. style 속성에 paddingBottom을 동적으로 추가합니다.
+    <View
+      className="pt-4 border-t border-gray-100 bg-white"
+      style={{ paddingBottom: insets.bottom }}
+    >
+      <View className="flex-row items-center gap-6 mb-4 px-4">
         {tabs.map((tab) => (
           <TouchableOpacity
             key={tab.value}
@@ -51,13 +58,13 @@ const PageTabs = <T extends string>({
       </View>
 
       {onSearchChange && (
-        <View className="flex-row items-center bg-white border border-gray-100 rounded-2xl px-4 py-3 shadow-sm">
+        <View className="flex-row items-center bg-white border border-gray-100 rounded-2xl px-4 py-3 shadow-sm mx-4">
           <Search size={18} color="#A3AED0" />
           <TextInput
             placeholder={searchPlaceholder}
             className="flex-1 ml-3 text-[14px]"
             value={searchKeyword}
-            onChangeText={onSearchChange} // 이제 여기가 안전해집니다.
+            onChangeText={onSearchChange}
           />
         </View>
       )}

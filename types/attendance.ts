@@ -1,32 +1,3 @@
-// export type AttendanceStatus =
-//   | "NOT_STARTED"
-//   | "WORKING"
-//   | "NORMAL"
-//   | "LATE"
-//   | "EARLY_LEAVE"
-//   | "LATE_EARLY"
-//   | "INSUFFICIENT"
-//   | "MISSING_OUT"
-//   | "ABSENT";
-
-// export interface WorkPolicy {
-//   workType: string;
-//   workStartTime: string;
-//   workEndTime: string;
-//   workMinutes: number;
-//   lunchMinutes: number;
-// }
-
-// export interface AttendanceData {
-//   status: AttendanceStatus;
-//   isClockedIn: boolean; // ✅ 추가
-//   isClockedOut: boolean; // ✅ 추가
-//   workMinutes: number;
-//   clockIn: string | null;
-//   clockOut: string | null;
-//   serverTime?: string;
-//   policy: WorkPolicy | null;
-// }
 /**
  * 1. 상태 관련 타입 (근태 상태 + 결재 상태)
  */
@@ -39,7 +10,8 @@ export type AttendanceStatus =
   | "LATE_EARLY"
   | "INSUFFICIENT"
   | "MISSING_OUT"
-  | "ABSENT";
+  | "ABSENT"
+  | "LEAVE";
 
 // 정정 신청 전용 결재 상태
 export type CorrectionStatus = "PENDING" | "APPROVED" | "REJECTED";

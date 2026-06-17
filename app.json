@@ -16,7 +16,16 @@
       }
     },
     "android": {
-      "package": "com.jflsjtz.worklogapp"
-    }
+      "package": "com.jflsjtz.worklogapp",
+      "enableProguardInReleaseBuilds": true,
+      "jsEngine": "hermes"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1b858837-c3be-4e54-97ff-b92b9d4f3477"
+    },
+    "ios": {}
   }
 }

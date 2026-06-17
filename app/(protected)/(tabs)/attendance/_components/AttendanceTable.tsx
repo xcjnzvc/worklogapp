@@ -81,7 +81,7 @@ const AttendanceTable = ({
               {item.status !== "NORMAL" && (
                 <TouchableOpacity
                   onPress={() => onItemClick?.(item)}
-                  className="w-full py-4 bg-[#4318FF] rounded-[20px] items-center"
+                  className="w-full py-4 bg-[#4318FF] rounded-2xl items-center"
                 >
                   <Text className="text-white font-bold text-[14px]">
                     정정 요청
@@ -93,7 +93,7 @@ const AttendanceTable = ({
             /* 2. 정정 신청 내역 (Log-Entry 스타일 - 강조 위주) */
             <View className="flex flex-col gap-4">
               <View className="flex-row justify-between items-center">
-                <Text className="text-[13px] font-bold text-[#4318FF]">
+                <Text className="text-[12px] font-bold text-[#A3AED0] tracking-wider uppercase">
                   NO. {String(index + 1).padStart(3, "0")}
                 </Text>
                 <View className="bg-[#FFF8E7] px-3 py-1 rounded-full">

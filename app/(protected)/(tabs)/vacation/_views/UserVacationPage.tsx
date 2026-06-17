@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+} from "react-native";
 import { Plus, Calendar, PieChart, List } from "lucide-react-native";
 import { useRouter } from "expo-router";
 
@@ -17,9 +24,16 @@ export default function UserVacationPage() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
 
   const { useVacationList } = useVacation();
-  const { data, isLoading, isError } = useVacationList(currentPage);
+  const { data, isLoading, isError, refetch } = useVacationList(currentPage);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refetch(); // 서버에서 데이터 다시 불러오기
+    setRefreshing(false);
+  };
 
   const filteredData = useMemo(() => {
     if (!data?.list) return [];
@@ -39,53 +53,65 @@ export default function UserVacationPage() {
 
   return (
     <View className="flex-1 bg-gray-50">
-      <ListPageLayout
-        title="휴가 관리"
-        description="나의 휴가 현황을 확인하세요."
-        noBackground={true}
-        stats={
-          <View className="flex-col gap-3">
-            <StatCard
-              label="총 연차"
-              value={`${data.summary.total}일`}
-              color="text-[#1B254B]"
-              icon={<Calendar size={20} />}
-            />
-            <StatCard
-              label="사용한 연차"
-              value={`${data.summary.used}일`}
-              color="text-[#4318FF]"
-              icon={<PieChart size={20} />}
-            />
-            <StatCard
-              label="잔여 연차"
-              value={`${data.summary.remaining}일`}
-              color="text-[#00B050]"
-              icon={<List size={20} />}
-            />
-          </View>
-        }
-        tabs={
-          <PageTabs
-            tabs={[{ value: "MY", label: "휴가 내역 목록" }]}
-            activeTab="MY"
-            onTabChange={() => {}}
-            searchKeyword={searchKeyword}
-            onSearchChange={setSearchKeyword}
-            searchPlaceholder="검색..."
+      {/* 4. 스크롤이 필요한 영역을 ScrollView로 감싸고 refreshControl 추가 */}
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#0029C0"
           />
         }
       >
-        <VacationTable
-          data={filteredData}
-          onItemClick={(item: any) => console.log(item)}
-        />
-        <Pagination
-          currentPage={currentPage}
-          totalPages={data.metadata?.totalPages || 1}
-          onPageChange={setCurrentPage}
-        />
-      </ListPageLayout>
+        <ListPageLayout
+          title="휴가 관리"
+          description="나의 휴가 현황을 확인하세요."
+          noBackground={true}
+          stats={
+            <View className="flex-col gap-3">
+              <StatCard
+                label="총 연차"
+                value={`${data.summary.total}일`}
+                color="text-[#1B254B]"
+                icon={<Calendar size={20} />}
+              />
+              <StatCard
+                label="사용한 연차"
+                value={`${data.summary.used}일`}
+                color="text-[#4318FF]"
+                icon={<PieChart size={20} />}
+              />
+              <StatCard
+                label="잔여 연차"
+                value={`${data.summary.remaining}일`}
+                color="text-[#00B050]"
+                icon={<List size={20} />}
+              />
+            </View>
+          }
+          tabs={
+            <PageTabs
+              tabs={[{ value: "MY", label: "휴가 내역 목록" }]}
+              activeTab="MY"
+              onTabChange={() => {}}
+              searchKeyword={searchKeyword}
+              onSearchChange={setSearchKeyword}
+              searchPlaceholder="검색어를 입력해주세요."
+            />
+          }
+        >
+          <VacationTable
+            data={filteredData}
+            onItemClick={(item: any) => console.log(item)}
+          />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={data.metadata?.totalPages || 1}
+            onPageChange={setCurrentPage}
+          />
+        </ListPageLayout>
+      </ScrollView>
 
       {/* 모바일 플로팅 버튼 (Floating Action Button) */}
       <TouchableOpacity

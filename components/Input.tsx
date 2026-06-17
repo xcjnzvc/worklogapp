@@ -49,12 +49,12 @@ const Input = ({
         {isPassword && (
           <Pressable
             onPress={() => setShowPassword(!showPassword)}
-            className="absolute right-[12px] top-3"
+            className="absolute right-[12px] top-4"
           >
             {isVisible ? (
-              <EyeOff size={20} color="#999999" />
-            ) : (
               <Eye size={20} color="#999999" />
+            ) : (
+              <EyeOff size={20} color="#999999" />
             )}
           </Pressable>
         )}
